@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Landmarks Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a192f;
+            --bg-light: #112240;
+            --gold: #FFD700;
+            --blue: #2196F3;
+            --teal: #008080;
+            --coral: #FF7F50;
+            --green: #4CAF50;
+            --red: #F44336;
+            --purple: #9C27B0;
+            --amber: #FFC107;
+            --white: #ffffff;
+            --gray: #8892b0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark), var(--bg-light));
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .screen {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--coral);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: var(--blue);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .btn-gold { background: var(--gold); color: var(--bg-dark); }
+        .btn-coral { background: var(--coral); }
+        
+        /* Loading Screen */
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            height: 20px;
+            background: var(--gray);
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--teal);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .stars { color: var(--gold); font-size: 1.5rem; }
+        
+        /* Quiz Mode */
+        .card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .landmark-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid transparent;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn.selected {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .option-btn.correct { background: var(--green); border-color: var(--green); }
+        .option-btn.wrong { background: var(--red); border-color: var(--red); }
+        .option-btn:disabled { cursor: not-allowed; }
+
+        /* Matching Game */
+        .matching-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .grid-photos {
+            flex: 2;
+            min-width: 300px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .grid-names {
+            flex: 1;
+            min-width: 250px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .match-photo {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .match-name {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid transparent;
+            font-size: 0.9rem;
+        }
+
+        .match-selected { border-color: var(--gold); transform: scale(1.05); }
+        .match-correct { border-color: var(--green) !important; opacity: 0.3; pointer-events: none; }
+        .match-wrong { border-color: var(--red) !important; animation: shake 0.4s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-photos { grid-template-columns: repeat(3, 1fr); }
+            .grid-names { grid-template-columns: repeat(2, 1fr); }
+            h1 { font-size: 2rem; }
+            .landmark-img { height: 200px; }
+        }
+        @media (max-width: 480px) {
+            .grid-photos { grid-template-columns: repeat(2, 1fr); }
+            .grid-names { grid-template-columns: repeat(1, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen" class="screen">
+        <h1 style="margin-top: 20vh;">🌍 Loading the World...</h1>
+        <p>Fetching beautiful photos just for you</p>
+        <div class="progress-container">
+            <div id="loading-bar" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <div id="home-screen" class="screen hidden" style="margin-top: 15vh;">
+        <h1>🌍 World Landmarks</h1>
+        <h2>Learn 20 amazing landmarks from around the world</h2>
+        <button class="btn btn-gold" onclick="startQuiz()">Quiz Mode</button>
+        <button class="btn" onclick="startMatching()">Matching Game</button>
+    </div>
+
+    <div id="quiz-screen" class="screen hidden">
+        <div class="top-bar">
+            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Home</button>
+            <div id="quiz-progress" style="font-weight: bold;">1 / 20</div>
+            <div class="stars">⭐ <span id="star-score">0</span></div>
+        </div>
+        
+        <div class="card">
+            <div id="continent-badge" class="badge">Europe</div>
+            <img id="quiz-image" class="landmark-img" src="" alt="Landmark">
+            <div id="quiz-options" class="options">
+                </div>
+        </div>
+        <button id="action-btn" class="btn btn-coral" style="margin-top: 20px;" onclick="handleQuizAction()">Reveal Answer</button>
+    </div>
+
+    <div id="matching-screen" class="screen hidden">
+        <div class="top-bar">
+            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Home</button>
+            <div style="font-weight: bold;">Attempts: <span id="match-attempts">0</span></div>
+            <div style="font-weight: bold;">Matched: <span id="match-score">0</span>/20</div>
+        </div>
+        <div class="matching-container">
+            <div id="grid-photos" class="grid-photos"></div>
+            <div id="grid-names" class="grid-names"></div>
+        </div>
+    </div>
+
+    <div id="results-screen" class="screen hidden" style="margin-top: 15vh;">
+        <h1>🎉 Fantastic Job!</h1>
+        <h2 id="final-score-text">You scored 20/20 (100%)</h2>
+        <p id="encouraging-message" style="font-size: 1.2rem; margin-bottom: 30px;">You are a world explorer!</p>
+        <button class="btn btn-gold" onclick="showHome()">Play Again</button>
+    </div>
+
+<script>
+    const landmarkData = [
+        { name: "Eiffel Tower", wiki: "Eiffel_Tower", continent: "Europe", color: "#2196F3" },
+        { name: "Great Wall of China", wiki: "Great_Wall_of_China", continent: "Asia", color: "#F44336" },
+        { name: "Statue of Liberty", wiki: "Statue_of_Liberty", continent: "N. America", color: "#9C27B0" },
+        { name: "Taj Mahal", wiki: "Taj_Mahal", continent: "Asia", color: "#F44336" },
+        { name: "Colosseum", wiki: "Colosseum", continent: "Europe", color: "#2196F3" },
+        { name: "Machu Picchu", wiki: "Machu_Picchu", continent: "S. America", color: "#4CAF50" },
+        { name: "Pyramids of Giza", wiki: "Great_Pyramid_of_Giza", continent: "Africa", color: "#FFC107" },
+        { name: "Big Ben", wiki: "Big_Ben", continent: "Europe", color: "#2196F3" },
+        { name: "Sydney Opera House", wiki: "Sydney_Opera_House", continent: "Oceania", color: "#008080" },
+        { name: "Christ the Redeemer", wiki: "Christ_the_Redeemer_(statue)", continent: "S. America", color: "#4CAF50" },
+        { name: "Moai Statues", wiki: "Moai", continent: "Oceania", color: "#008080" },
+        { name: "Petra", wiki: "Petra", continent: "Asia", color: "#F44336" },
+        { name: "Angkor Wat", wiki: "Angkor_Wat", continent: "Asia", color: "#F44336" },
+        { name: "Neuschwanstein Castle", wiki: "Neuschwanstein_Castle", continent: "Europe", color: "#2196F3" },
+        { name: "Blue Mosque", wiki: "Sultan_Ahmed_Mosque", continent: "Europe", color: "#2196F3" },
+        { name: "Chichen Itza", wiki: "Chichen_Itza", continent: "N. America", color: "#9C27B0" },
+        { name: "Stonehenge", wiki: "Stonehenge", continent: "Europe", color: "#2196F3" },
+        { name: "Mount Rushmore", wiki: "Mount_Rushmore", continent: "N. America", color: "#9C27B0" },
+        { name: "Sagrada Familia", wiki: "Sagrada_Familia", continent: "Europe", color: "#2196F3" },
+        { name: "Great Barrier Reef", wiki: "Great_Barrier_Reef", continent: "Oceania", color: "#008080" }
+    ];
+
+    let landmarks = [];
+    
+    // Quiz State
+    let currentQuizQuestions = [];
+    let currentQuestionIndex = 0;
+    let quizScore = 0;
+    let selectedOptionBtn = null;
+    let isRevealed = false;
+
+    // Matching State
+    let matchAttempts = 0;
+    let matchScore = 0;
+    let selectedPhotoId = null;
+    let selectedNameId = null;
+
+    async function init() {
+        let loaded = 0;
+        const loadingBar = document.getElementById('loading-bar');
+
+        for (let item of landmarkData) {
+            try {
+                const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${item.wiki}`);
+                const data = await res.json();
+                let src = data.thumbnail.source;
+                // Upgrade resolution to 600px
+                src = src.replace(/\/\d+px-/, '/600px-');
+                landmarks.push({ ...item, src });
+            } catch (e) {
+                console.error("Failed to load image for " + item.name);
+            }
+            loaded++;
+            loadingBar.style.width = `${(loaded / landmarkData.length) * 100}%`;
+        }
+
+        setTimeout(() => {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+        }, 500);
+    }
+
+    function showHome() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('home-screen').classList.remove('hidden');
+    }
+
+    // --- QUIZ LOGIC ---
+    function startQuiz() {
+        currentQuizQuestions = [...landmarks].sort(() => 0.5 - Math.random());
+        currentQuestionIndex = 0;
+        quizScore = 0;
+        document.getElementById('star-score').innerText = quizScore;
+        
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuizQuestion();
+    }
+
+    function loadQuizQuestion() {
+        isRevealed = false;
+        selectedOptionBtn = null;
+        document.getElementById('action-btn').innerText = "Reveal Answer";
+        document.getElementById('action-btn').classList.add('hidden');
+        
+        const q = currentQuizQuestions[currentQuestionIndex];
+        document.getElementById('quiz-progress').innerText = `${currentQuestionIndex + 1} / 20`;
+        document.getElementById('quiz-image').src = q.src;
+        
+        const badge = document.getElementById('continent-badge');
+        badge.innerText = q.continent;
+        badge.style.backgroundColor = q.color;
+        badge.style.color = q.continent === 'Africa' ? '#000' : '#fff';
+
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+
+        // Generate choices
+        let choices = [q.name];
+        let others = landmarks.filter(l => l.name !== q.name).sort(() => 0.5 - Math.random());
+        choices.push(others[0].name);
+        choices.push(others[1].name);
+        choices.sort(() => 0.5 - Math.random());
+
+        choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = choice;
+            btn.onclick = () => selectQuizOption(btn, choice === q.name);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectQuizOption(btn, isCorrect) {
+        if (isRevealed) return;
+        
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedOptionBtn = { btn, isCorrect };
+        
+        document.getElementById('action-btn').classList.remove('hidden');
+    }
+
+    function handleQuizAction() {
+        if (!isRevealed) {
+            // Reveal step
+            isRevealed = true;
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === currentQuizQuestions[currentQuestionIndex].name) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (selectedOptionBtn.isCorrect) {
+                quizScore++;
+                document.getElementById('star-score').innerText = quizScore;
+            } else {
+                selectedOptionBtn.btn.classList.add('wrong');
+            }
+
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.innerText = currentQuestionIndex < 19 ? "Next Question" : "See Results";
+            actionBtn.classList.remove('btn-coral');
+            actionBtn.classList.add('btn-gold');
+        } else {
+            // Next step
+            document.getElementById('action-btn').classList.remove('btn-gold');
+            document.getElementById('action-btn').classList.add('btn-coral');
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 20) {
+                loadQuizQuestion();
+            } else {
+                showResults(quizScore, 20);
+            }
+        }
+    }
+
+    // --- MATCHING LOGIC ---
+    function startMatching() {
+        matchAttempts = 0;
+        matchScore = 0;
+        selectedPhotoId = null;
+        selectedNameId = null;
+        
+        document.getElementById('match-attempts').innerText = matchAttempts;
+        document.getElementById('match-score').innerText = matchScore;
+
+        const photoGrid = document.getElementById('grid-photos');
+        const nameGrid = document.getElementById('grid-names');
+        photoGrid.innerHTML = '';
+        nameGrid.innerHTML = '';
+
+        let photoItems = [...landmarks].sort(() => 0.5 - Math.random());
+        let nameItems = [...landmarks].sort(() => 0.5 - Math.random());
+
+        photoItems.forEach(item => {
+            const img = document.createElement('img');
+            img.src = item.src;
+            img.className = 'match-photo';
+            img.dataset.name = item.name;
+            img.onclick = () => handleMatchClick('photo', img);
+            photoGrid.appendChild(img);
+        });
+
+        nameItems.forEach(item => {
+            const div = document.createElement('div');
+            div.innerText = item.name;
+            div.className = 'match-name';
+            div.dataset.name = item.name;
+            div.onclick = () => handleMatchClick('name', div);
+            nameGrid.appendChild(div);
+        });
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('matching-screen').classList.remove('hidden');
+    }
+
+    function handleMatchClick(type, element) {
+        if (element.classList.contains('match-correct')) return;
+
+        if (type === 'photo') {
+            document.querySelectorAll('.match-photo').forEach(el => el.classList.remove('match-selected'));
+            element.classList.add('match-selected');
+            selectedPhotoId = element;
+        } else {
+            document.querySelectorAll('.match-name').forEach(el => el.classList.remove('match-selected'));
+            element.classList.add('match-selected');
+            selectedNameId = element;
+        }
+
+        if (selectedPhotoId && selectedNameId) {
+            matchAttempts++;
+            document.getElementById('match-attempts').innerText = matchAttempts;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const photo = selectedPhotoId;
+        const name = selectedNameId;
+        
+        selectedPhotoId = null;
+        selectedNameId = null;
+
+        if (photo.dataset.name === name.dataset.name) {
+            photo.classList.replace('match-selected', 'match-correct');
+            name.classList.replace('match-selected', 'match-correct');
+            matchScore++;
+            document.getElementById('match-score').innerText = matchScore;
+
+            if (matchScore === 20) {
+                setTimeout(() => showResults(matchScore, matchAttempts, true), 500);
+            }
+        } else {
+            photo.classList.add('match-wrong');
+            name.classList.add('match-wrong');
+            setTimeout(() => {
+                photo.classList.remove('match-selected', 'match-wrong');
+                name.classList.remove('match-selected', 'match-wrong');
+            }, 400);
+        }
+    }
+
+    // --- RESULTS LOGIC ---
+    function showResults(score, total, isMatching = false) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('results-screen').classList.remove('hidden');
+
+        const title = document.getElementById('final-score-text');
+        const msg = document.getElementById('encouraging-message');
+
+        if (isMatching) {
+            const accuracy = Math.round((20 / total) * 100);
+            title.innerText = `You matched them all in ${total} attempts!`;
+            msg.innerText = `That is an accuracy of ${accuracy}%. Brilliant memory!`;
+        } else {
+            const percentage = Math.round((score / total) * 100);
+            title.innerText = `You scored ${score}/${total} (${percentage}%)`;
+            if (percentage === 100) msg.innerText = "Absolutely perfect; you are a world explorer!";
+            else if (percentage >= 70) msg.innerText = "Great job; you know your geography!";
+            else msg.innerText = "Good try; practice makes perfect!";
+        }
+    }
+
+    // Start app
+    init();
+</script>
+</body>
+</html>
