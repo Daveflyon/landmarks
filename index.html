@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Landmarks Quiz</title>
+    <title>World Landmarks Explorer</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -36,6 +36,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .hidden {
@@ -67,7 +68,7 @@
         h2 {
             font-size: 1.5rem;
             color: var(--coral);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .btn {
@@ -93,7 +94,83 @@
 
         .btn-gold { background: var(--gold); color: var(--bg-dark); }
         .btn-coral { background: var(--coral); }
+        .btn-teal { background: var(--teal); }
+        .btn-small { font-size: 0.9rem; padding: 8px 15px; width: auto; margin-top: -15px; margin-bottom: 30px; background: rgba(244, 67, 54, 0.2); border: 1px solid var(--red); color: var(--red); }
+        .btn-small:hover { background: var(--red); color: white; }
         
+        .floating-mute {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            border: 2px solid var(--gray);
+            transition: all 0.2s;
+        }
+
+        /* Hero Hub Specifics */
+        .trophy-room {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .trophy-stat {
+            display: flex;
+            flex-direction: column;
+            color: var(--gold);
+        }
+        
+        .trophy-stat span:first-child { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .trophy-stat span:last-child { font-size: 1.5rem; font-weight: bold; }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .diff-btn {
+            background: transparent;
+            border: 2px solid var(--gray);
+            color: var(--gray);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .diff-btn.active {
+            background: var(--green);
+            border-color: var(--green);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .mode-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: center;
+        }
+
         /* Loading Screen */
         .progress-container {
             width: 100%;
@@ -121,129 +198,92 @@
             padding: 10px 20px;
             background: rgba(255,255,255,0.1);
             border-radius: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .stars { color: var(--gold); font-size: 1.5rem; }
-        
-        /* Quiz Mode */
-        .card {
+        /* Learn Mode */
+        .learn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+            padding-bottom: 40px;
+        }
+
+        .learn-card {
             background: rgba(255,255,255,0.05);
-            padding: 20px;
             border-radius: 20px;
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .badge {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-
-        .landmark-img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 3px solid rgba(255,255,255,0.2);
-        }
-
-        .options {
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            text-align: left;
         }
 
-        .option-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 2px solid transparent;
-            padding: 15px;
+        .learn-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .learn-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .learn-title {
+            color: var(--gold);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .learn-fact {
+            color: var(--white);
+            font-size: 1rem;
+            line-height: 1.4;
+            margin-top: 15px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
             border-radius: 10px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .option-btn.selected {
-            border-color: var(--gold);
-            background: rgba(255, 215, 0, 0.2);
-        }
-
+        /* Quiz & Matching Modes */
+        .card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; width: 100%; max-width: 600px; position: relative; }
+        .badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); padding: 5px 15px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; color: white; }
+        .landmark-img { width: 100%; height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 20px; border: 3px solid rgba(255,255,255,0.2); }
+        .options { display: flex; flex-direction: column; gap: 15px; }
+        .option-btn { background: rgba(255,255,255,0.1); color: white; border: 2px solid transparent; padding: 15px; border-radius: 10px; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; }
+        .option-btn.selected { border-color: var(--gold); background: rgba(255, 215, 0, 0.2); }
         .option-btn.correct { background: var(--green); border-color: var(--green); }
         .option-btn.wrong { background: var(--red); border-color: var(--red); }
         .option-btn:disabled { cursor: not-allowed; }
+        .fact-box { background: rgba(255, 215, 0, 0.15); padding: 15px; border-radius: 10px; margin-top: 20px; font-size: 1.1rem; color: var(--gold); border: 1px solid var(--gold); animation: fadeIn 0.5s ease-in-out; }
 
-        /* Matching Game */
-        .matching-container {
-            display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .grid-photos {
-            flex: 2;
-            min-width: 300px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .grid-names {
-            flex: 1;
-            min-width: 250px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .match-photo {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 10px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: transform 0.2s;
-        }
-
-        .match-name {
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 3px solid transparent;
-            font-size: 0.9rem;
-        }
-
+        .matching-container { display: flex; flex-wrap: wrap; width: 100%; gap: 20px; justify-content: center; }
+        .grid-photos { flex: 2; min-width: 300px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .grid-names { flex: 1; min-width: 250px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .match-photo { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; cursor: pointer; border: 3px solid transparent; transition: transform 0.2s; }
+        .match-name { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid transparent; font-size: 0.9rem; transition: all 0.3s ease; }
         .match-selected { border-color: var(--gold); transform: scale(1.05); }
-        .match-correct { border-color: var(--green) !important; opacity: 0.3; pointer-events: none; }
+        .match-correct { border-color: var(--green) !important; opacity: 0.8; pointer-events: none; font-weight: bold; }
         .match-wrong { border-color: var(--red) !important; animation: shake 0.4s; }
+        #stopwatch-display { color: var(--coral); font-size: 1.2rem; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 10px; }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
+        .confetti { position: fixed; top: -10px; width: 10px; height: 10px; z-index: 9999; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
         @media (max-width: 768px) {
             .grid-photos { grid-template-columns: repeat(3, 1fr); }
             .grid-names { grid-template-columns: repeat(2, 1fr); }
             h1 { font-size: 2rem; }
             .landmark-img { height: 200px; }
+            .floating-mute { top: 10px; right: 10px; width: 40px; height: 40px; font-size: 1.2rem; }
+            .trophy-room { flex-direction: column; gap: 10px; padding: 10px 20px; }
         }
         @media (max-width: 480px) {
             .grid-photos { grid-template-columns: repeat(2, 1fr); }
@@ -253,6 +293,8 @@
 </head>
 <body>
 
+    <div id="mute-btn" class="floating-mute" onclick="toggleMute()">🔊</div>
+
     <div id="loading-screen" class="screen">
         <h1 style="margin-top: 20vh;">🌍 Loading the World...</h1>
         <p>Fetching beautiful photos just for you</p>
@@ -261,16 +303,49 @@
         </div>
     </div>
 
-    <div id="home-screen" class="screen hidden" style="margin-top: 15vh;">
+    <div id="home-screen" class="screen hidden" style="margin-top: 5vh;">
         <h1>🌍 World Landmarks</h1>
-        <h2>Learn 20 amazing landmarks from around the world</h2>
-        <button class="btn btn-gold" onclick="startQuiz()">Quiz Mode</button>
-        <button class="btn" onclick="startMatching()">Matching Game</button>
+        
+        <div class="trophy-room">
+            <div class="trophy-stat">
+                <span>Quiz High Score</span>
+                <span id="display-high-score">None yet</span>
+            </div>
+            <div class="trophy-stat">
+                <span>Fastest Match</span>
+                <span id="display-fastest-time">None yet</span>
+            </div>
+        </div>
+        <button class="btn btn-small" onclick="clearProgress()">🗑️ Reset Trophies</button>
+
+        <h2>1. Select your difficulty</h2>
+        <div class="difficulty-selector">
+            <button class="diff-btn" id="diff-10" onclick="setDifficulty(10)">Beginner (10)</button>
+            <button class="diff-btn active" id="diff-20" onclick="setDifficulty(20)">Intermediate (20)</button>
+            <button class="diff-btn" id="diff-30" onclick="setDifficulty(30)">Advanced (30)</button>
+        </div>
+
+        <h2>2. Choose your destination</h2>
+        <div class="mode-menu">
+            <button class="btn btn-teal" onclick="startLearnMode()">📖 Learn Mode</button>
+            <button class="btn btn-blue" onclick="startMatching()">🧩 Practice (Matching)</button>
+            <button class="btn btn-gold" onclick="startQuiz()">⭐ Quiz Mode</button>
+        </div>
+    </div>
+
+    <div id="learn-screen" class="screen hidden">
+        <div class="top-bar">
+            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Back to Hub</button>
+            <h2 style="margin: 0; color: var(--gold);">The Library</h2>
+            <div style="width: 80px;"></div>
+        </div>
+        <p>Take your time and study the landmarks. There are no timers here!</p>
+        <div id="learn-grid" class="learn-grid"></div>
     </div>
 
     <div id="quiz-screen" class="screen hidden">
         <div class="top-bar">
-            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Home</button>
+            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Abandon</button>
             <div id="quiz-progress" style="font-weight: bold;">1 / 20</div>
             <div class="stars">⭐ <span id="star-score">0</span></div>
         </div>
@@ -278,17 +353,18 @@
         <div class="card">
             <div id="continent-badge" class="badge">Europe</div>
             <img id="quiz-image" class="landmark-img" src="" alt="Landmark">
-            <div id="quiz-options" class="options">
-                </div>
+            <div id="quiz-options" class="options"></div>
+            <div id="quiz-fact" class="fact-box hidden"></div>
         </div>
         <button id="action-btn" class="btn btn-coral" style="margin-top: 20px;" onclick="handleQuizAction()">Reveal Answer</button>
     </div>
 
     <div id="matching-screen" class="screen hidden">
         <div class="top-bar">
-            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Home</button>
+            <button class="btn" style="width: auto; padding: 5px 15px; margin: 0;" onclick="showHome()">Abandon</button>
+            <div id="stopwatch-display" style="font-weight: bold;">⏱️ <span id="time-elapsed">0</span>s</div>
             <div style="font-weight: bold;">Attempts: <span id="match-attempts">0</span></div>
-            <div style="font-weight: bold;">Matched: <span id="match-score">0</span>/20</div>
+            <div style="font-weight: bold;">Matched: <span id="match-score">0</span>/<span id="match-total">20</span></div>
         </div>
         <div class="matching-container">
             <div id="grid-photos" class="grid-photos"></div>
@@ -300,47 +376,106 @@
         <h1>🎉 Fantastic Job!</h1>
         <h2 id="final-score-text">You scored 20/20 (100%)</h2>
         <p id="encouraging-message" style="font-size: 1.2rem; margin-bottom: 30px;">You are a world explorer!</p>
-        <button class="btn btn-gold" onclick="showHome()">Play Again</button>
+        <button class="btn btn-gold" onclick="showHome()">Back to Hub</button>
     </div>
 
 <script>
+    let currentDifficulty = 20;
+
+    /* AUDIO SYSTEM */
+    let isMuted = false;
+    let audioCtx;
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+    }
+
+    function playSound(type) {
+        if (isMuted) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        if (type === 'correct') {
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); 
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'wrong') {
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3); 
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'win') {
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.3);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.6);
+        }
+    }
+
+    /* MASTER DATABASE */
     const landmarkData = [
-        { name: "Eiffel Tower", wiki: "Eiffel_Tower", continent: "Europe", color: "#2196F3" },
-        { name: "Great Wall of China", wiki: "Great_Wall_of_China", continent: "Asia", color: "#F44336" },
-        { name: "Statue of Liberty", wiki: "Statue_of_Liberty", continent: "N. America", color: "#9C27B0" },
-        { name: "Taj Mahal", wiki: "Taj_Mahal", continent: "Asia", color: "#F44336" },
-        { name: "Colosseum", wiki: "Colosseum", continent: "Europe", color: "#2196F3" },
-        { name: "Machu Picchu", wiki: "Machu_Picchu", continent: "S. America", color: "#4CAF50" },
-        { name: "Pyramids of Giza", wiki: "Great_Pyramid_of_Giza", continent: "Africa", color: "#FFC107" },
-        { name: "Big Ben", wiki: "Big_Ben", continent: "Europe", color: "#2196F3" },
-        { name: "Sydney Opera House", wiki: "Sydney_Opera_House", continent: "Oceania", color: "#008080" },
-        { name: "Christ the Redeemer", wiki: "Christ_the_Redeemer_(statue)", continent: "S. America", color: "#4CAF50" },
-        { name: "Moai Statues", wiki: "Moai", continent: "Oceania", color: "#008080" },
-        { name: "Petra", wiki: "Petra", continent: "Asia", color: "#F44336" },
-        { name: "Angkor Wat", wiki: "Angkor_Wat", continent: "Asia", color: "#F44336" },
-        { name: "Neuschwanstein Castle", wiki: "Neuschwanstein_Castle", continent: "Europe", color: "#2196F3" },
-        { name: "Blue Mosque", wiki: "Sultan_Ahmed_Mosque", continent: "Europe", color: "#2196F3" },
-        { name: "Chichen Itza", wiki: "Chichen_Itza", continent: "N. America", color: "#9C27B0" },
-        { name: "Stonehenge", wiki: "Stonehenge", continent: "Europe", color: "#2196F3" },
-        { name: "Mount Rushmore", wiki: "Mount_Rushmore", continent: "N. America", color: "#9C27B0" },
-        { name: "Sagrada Familia", wiki: "Sagrada_Familia", continent: "Europe", color: "#2196F3" },
-        { name: "Great Barrier Reef", wiki: "Great_Barrier_Reef", continent: "Oceania", color: "#008080" }
+        { name: "Eiffel Tower", wiki: "Eiffel_Tower", continent: "Europe", color: "#2196F3", fact: "It can grow up to 15 centimetres taller in the summer due to the iron expanding in the heat." },
+        { name: "Great Wall of China", wiki: "Great_Wall_of_China", continent: "Asia", color: "#F44336", fact: "It is not actually a single continuous wall but a series of walls and fortifications." },
+        { name: "Statue of Liberty", wiki: "Statue_of_Liberty", continent: "N. America", color: "#9C27B0", fact: "Her outer layer is made of copper and she used to be the colour of a penny before turning green." },
+        { name: "Taj Mahal", wiki: "Taj_Mahal", continent: "Asia", color: "#F44336", fact: "This famous mausoleum changes colour depending on the time of day." },
+        { name: "Colosseum", wiki: "Colosseum", continent: "Europe", color: "#2196F3", fact: "It could hold up to 80,000 spectators for ancient gladiatorial contests." },
+        { name: "Machu Picchu", wiki: "Machu_Picchu", continent: "S. America", color: "#4CAF50", fact: "The stones are cut so perfectly that you cannot even fit a credit card between them." },
+        { name: "Pyramids of Giza", wiki: "Great_Pyramid_of_Giza", continent: "Africa", color: "#FFC107", fact: "The Great Pyramid was the tallest man-made structure in the world for over 3,800 years." },
+        { name: "Big Ben", wiki: "Big_Ben", continent: "Europe", color: "#2196F3", fact: "Big Ben is actually the name of the giant bell inside the tower and not the clock itself." },
+        { name: "Sydney Opera House", wiki: "Sydney_Opera_House", continent: "Oceania", color: "#008080", fact: "The iconic roof is covered with more than one million ceramic tiles." },
+        { name: "Christ the Redeemer", wiki: "Christ_the_Redeemer_(statue)", continent: "S. America", color: "#4CAF50", fact: "The statue was struck by lightning in 2014 and lost a piece of its thumb." },
+        { name: "Moai Statues", wiki: "Moai", continent: "Oceania", color: "#008080", fact: "These giant heads actually have hidden bodies buried deep underground." },
+        { name: "Petra", wiki: "Petra", continent: "Asia", color: "#F44336", fact: "This ancient city was carved straight into the vibrant red sandstone cliffs." },
+        { name: "Angkor Wat", wiki: "Angkor_Wat", continent: "Asia", color: "#F44336", fact: "It is the largest religious monument in the world and was originally built as a Hindu temple." },
+        { name: "Neuschwanstein Castle", wiki: "Neuschwanstein_Castle", continent: "Europe", color: "#2196F3", fact: "This fairy-tale castle inspired the famous Sleeping Beauty Castle at Disneyland." },
+        { name: "Blue Mosque", wiki: "Sultan_Ahmed_Mosque", continent: "Europe", color: "#2196F3", fact: "It gets its name from the 20,000 handmade blue ceramic tiles lining its interior walls." },
+        { name: "Chichen Itza", wiki: "Chichen_Itza", continent: "N. America", color: "#9C27B0", fact: "Clapping your hands at the base of the main pyramid creates an echo that sounds like a bird chirping." },
+        { name: "Stonehenge", wiki: "Stonehenge", continent: "Europe", color: "#2196F3", fact: "Some of the giant stones were dragged from over 150 miles away in Wales." },
+        { name: "Mount Rushmore", wiki: "Mount_Rushmore", continent: "N. America", color: "#9C27B0", fact: "It took 14 years to carve the faces of the four presidents using dynamite." },
+        { name: "Sagrada Familia", wiki: "Sagrada_Familia", continent: "Europe", color: "#2196F3", fact: "Construction started in 1882 and it is still not completely finished today." },
+        { name: "Great Barrier Reef", wiki: "Great_Barrier_Reef", continent: "Oceania", color: "#008080", fact: "It is the largest living structure on Earth and can be seen from space." },
+        { name: "Mount Fuji", wiki: "Mount_Fuji", continent: "Asia", color: "#F44336", fact: "It is an active volcano that last erupted in 1707 and is considered sacred in Japan." },
+        { name: "Burj Khalifa", wiki: "Burj_Khalifa", continent: "Asia", color: "#F44336", fact: "It is the tallest building in the world standing at a staggering 828 metres." },
+        { name: "CN Tower", wiki: "CN_Tower", continent: "N. America", color: "#9C27B0", fact: "It held the record as the world's tallest free-standing structure for over 30 years." },
+        { name: "Grand Canyon", wiki: "Grand_Canyon", continent: "N. America", color: "#9C27B0", fact: "This steep-sided canyon was carved over millions of years by the Colorado River." },
+        { name: "Golden Gate Bridge", wiki: "Golden_Gate_Bridge", continent: "N. America", color: "#9C27B0", fact: "Its famous orange colour was originally intended just to be a primer to prevent rust." },
+        { name: "Niagara Falls", wiki: "Niagara_Falls", continent: "N. America", color: "#9C27B0", fact: "More than 3,160 tons of water flows over the massive falls every single second." },
+        { name: "Mount Kilimanjaro", wiki: "Mount_Kilimanjaro", continent: "Africa", color: "#FFC107", fact: "It is the tallest free-standing mountain in the world and has three volcanic cones." },
+        { name: "Table Mountain", wiki: "Table_Mountain", continent: "Africa", color: "#FFC107", fact: "Its flat top is frequently covered by a spectacular 'tablecloth' of white clouds." },
+        { name: "Matterhorn", wiki: "Matterhorn", continent: "Europe", color: "#2196F3", fact: "This iconic, nearly symmetrical pyramidal peak is one of the highest summits in the Alps." },
+        { name: "Victoria Falls", wiki: "Victoria_Falls", continent: "Africa", color: "#FFC107", fact: "It is known locally as 'The Smoke That Thunders' due to its massive, noisy spray." }
     ];
 
     let landmarks = [];
+    let activeSubset = [];
     
-    // Quiz State
-    let currentQuizQuestions = [];
+    // States
     let currentQuestionIndex = 0;
     let quizScore = 0;
     let selectedOptionBtn = null;
     let isRevealed = false;
-
-    // Matching State
     let matchAttempts = 0;
     let matchScore = 0;
     let selectedPhotoId = null;
     let selectedNameId = null;
+    let stopwatchInterval;
+    let matchSeconds = 0;
 
     async function init() {
         let loaded = 0;
@@ -351,7 +486,6 @@
                 const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${item.wiki}`);
                 const data = await res.json();
                 let src = data.thumbnail.source;
-                // Upgrade resolution to 600px
                 src = src.replace(/\/\d+px-/, '/600px-');
                 landmarks.push({ ...item, src });
             } catch (e) {
@@ -362,23 +496,78 @@
         }
 
         setTimeout(() => {
+            updateTrophyRoom();
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('home-screen').classList.remove('hidden');
         }, 500);
     }
 
+    /* HUB LOGIC */
     function showHome() {
+        clearInterval(stopwatchInterval);
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById('home-screen').classList.remove('hidden');
+        document.querySelectorAll('.confetti').forEach(c => c.remove());
+        updateTrophyRoom();
     }
 
-    // --- QUIZ LOGIC ---
+    function setDifficulty(level) {
+        currentDifficulty = level;
+        document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`diff-${level}`).classList.add('active');
+    }
+
+    function getSubset() {
+        return [...landmarks].sort(() => 0.5 - Math.random()).slice(0, currentDifficulty);
+    }
+
+    function updateTrophyRoom() {
+        const quizDisplay = localStorage.getItem('worldLandmarksBestQuizDisplay');
+        const fastTime = localStorage.getItem('worldLandmarksFastestMatch');
+        
+        document.getElementById('display-high-score').innerText = quizDisplay ? quizDisplay : "None yet";
+        document.getElementById('display-fastest-time').innerText = fastTime ? fastTime + "s" : "None yet";
+    }
+
+    function clearProgress() {
+        if (confirm("Are you sure you want to reset your trophies? This cannot be undone!")) {
+            localStorage.removeItem('worldLandmarksBestQuizPercent');
+            localStorage.removeItem('worldLandmarksBestQuizDisplay');
+            localStorage.removeItem('worldLandmarksFastestMatch');
+            updateTrophyRoom();
+        }
+    }
+
+    /* LEARN MODE */
+    function startLearnMode() {
+        activeSubset = getSubset();
+        const grid = document.getElementById('learn-grid');
+        grid.innerHTML = '';
+
+        activeSubset.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'learn-card';
+            card.innerHTML = `
+                <img src="${item.src}" alt="${item.name}">
+                <div class="learn-content">
+                    <span style="background:${item.color}; color:${item.continent === 'Africa' ? '#000' : '#fff'}; padding: 3px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; width: fit-content; margin-bottom: 5px;">${item.continent}</span>
+                    <div class="learn-title">${item.name}</div>
+                    <div class="learn-fact">Did you know? ${item.fact}</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById('learn-screen').classList.remove('hidden');
+    }
+
+    /* QUIZ LOGIC */
     function startQuiz() {
-        currentQuizQuestions = [...landmarks].sort(() => 0.5 - Math.random());
+        activeSubset = getSubset();
         currentQuestionIndex = 0;
         quizScore = 0;
         document.getElementById('star-score').innerText = quizScore;
-        
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById('quiz-screen').classList.remove('hidden');
         loadQuizQuestion();
@@ -389,9 +578,10 @@
         selectedOptionBtn = null;
         document.getElementById('action-btn').innerText = "Reveal Answer";
         document.getElementById('action-btn').classList.add('hidden');
+        document.getElementById('quiz-fact').classList.add('hidden');
         
-        const q = currentQuizQuestions[currentQuestionIndex];
-        document.getElementById('quiz-progress').innerText = `${currentQuestionIndex + 1} / 20`;
+        const q = activeSubset[currentQuestionIndex];
+        document.getElementById('quiz-progress').innerText = `${currentQuestionIndex + 1} / ${currentDifficulty}`;
         document.getElementById('quiz-image').src = q.src;
         
         const badge = document.getElementById('continent-badge');
@@ -402,7 +592,6 @@
         const optionsContainer = document.getElementById('quiz-options');
         optionsContainer.innerHTML = '';
 
-        // Generate choices
         let choices = [q.name];
         let others = landmarks.filter(l => l.name !== q.name).sort(() => 0.5 - Math.random());
         choices.push(others[0].name);
@@ -420,51 +609,52 @@
 
     function selectQuizOption(btn, isCorrect) {
         if (isRevealed) return;
-        
         document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedOptionBtn = { btn, isCorrect };
-        
         document.getElementById('action-btn').classList.remove('hidden');
     }
 
     function handleQuizAction() {
         if (!isRevealed) {
-            // Reveal step
             isRevealed = true;
             document.querySelectorAll('.option-btn').forEach(btn => {
                 btn.disabled = true;
-                if (btn.innerText === currentQuizQuestions[currentQuestionIndex].name) {
-                    btn.classList.add('correct');
-                }
+                if (btn.innerText === activeSubset[currentQuestionIndex].name) btn.classList.add('correct');
             });
 
             if (selectedOptionBtn.isCorrect) {
                 quizScore++;
                 document.getElementById('star-score').innerText = quizScore;
+                playSound('correct');
             } else {
                 selectedOptionBtn.btn.classList.add('wrong');
+                playSound('wrong');
             }
 
+            const factBox = document.getElementById('quiz-fact');
+            factBox.innerText = "Did you know? " + activeSubset[currentQuestionIndex].fact;
+            factBox.classList.remove('hidden');
+
             const actionBtn = document.getElementById('action-btn');
-            actionBtn.innerText = currentQuestionIndex < 19 ? "Next Question" : "See Results";
+            actionBtn.innerText = currentQuestionIndex < (currentDifficulty - 1) ? "Next Question" : "See Results";
             actionBtn.classList.remove('btn-coral');
             actionBtn.classList.add('btn-gold');
         } else {
-            // Next step
             document.getElementById('action-btn').classList.remove('btn-gold');
             document.getElementById('action-btn').classList.add('btn-coral');
             currentQuestionIndex++;
-            if (currentQuestionIndex < 20) {
+            if (currentQuestionIndex < currentDifficulty) {
                 loadQuizQuestion();
             } else {
-                showResults(quizScore, 20);
+                showResults(quizScore, currentDifficulty);
             }
         }
     }
 
-    // --- MATCHING LOGIC ---
+    /* MATCHING LOGIC */
     function startMatching() {
+        activeSubset = getSubset();
         matchAttempts = 0;
         matchScore = 0;
         selectedPhotoId = null;
@@ -472,14 +662,24 @@
         
         document.getElementById('match-attempts').innerText = matchAttempts;
         document.getElementById('match-score').innerText = matchScore;
+        document.getElementById('match-total').innerText = currentDifficulty;
+
+        // Reset and start stopwatch
+        matchSeconds = 0;
+        document.getElementById('time-elapsed').innerText = matchSeconds;
+        clearInterval(stopwatchInterval);
+        stopwatchInterval = setInterval(() => {
+            matchSeconds++;
+            document.getElementById('time-elapsed').innerText = matchSeconds;
+        }, 1000);
 
         const photoGrid = document.getElementById('grid-photos');
         const nameGrid = document.getElementById('grid-names');
         photoGrid.innerHTML = '';
         nameGrid.innerHTML = '';
 
-        let photoItems = [...landmarks].sort(() => 0.5 - Math.random());
-        let nameItems = [...landmarks].sort(() => 0.5 - Math.random());
+        let photoItems = [...activeSubset].sort(() => 0.5 - Math.random());
+        let nameItems = [...activeSubset].sort(() => 0.5 - Math.random());
 
         photoItems.forEach(item => {
             const img = document.createElement('img');
@@ -526,22 +726,29 @@
     function checkMatch() {
         const photo = selectedPhotoId;
         const name = selectedNameId;
-        
         selectedPhotoId = null;
         selectedNameId = null;
 
         if (photo.dataset.name === name.dataset.name) {
+            const landmarkObj = landmarks.find(l => l.name === name.dataset.name);
             photo.classList.replace('match-selected', 'match-correct');
             name.classList.replace('match-selected', 'match-correct');
+            name.innerText = `${landmarkObj.name} (${landmarkObj.continent})`;
+            name.style.backgroundColor = landmarkObj.color;
+            name.style.color = (landmarkObj.continent === 'Africa') ? '#000' : '#fff';
+            
             matchScore++;
             document.getElementById('match-score').innerText = matchScore;
+            playSound('correct');
 
-            if (matchScore === 20) {
+            if (matchScore === currentDifficulty) {
+                clearInterval(stopwatchInterval);
                 setTimeout(() => showResults(matchScore, matchAttempts, true), 500);
             }
         } else {
             photo.classList.add('match-wrong');
             name.classList.add('match-wrong');
+            playSound('wrong');
             setTimeout(() => {
                 photo.classList.remove('match-selected', 'match-wrong');
                 name.classList.remove('match-selected', 'match-wrong');
@@ -549,28 +756,66 @@
         }
     }
 
-    // --- RESULTS LOGIC ---
+    /* EFFECTS & RESULTS */
+    function throwConfetti() {
+        const colors = ['#FFD700', '#2196F3', '#008080', '#FF7F50', '#4CAF50', '#F44336', '#9C27B0'];
+        for (let i = 0; i < 150; i++) {
+            const conf = document.createElement('div');
+            conf.className = 'confetti';
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            conf.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(conf);
+            setTimeout(() => conf.remove(), 6000);
+        }
+    }
+
     function showResults(score, total, isMatching = false) {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById('results-screen').classList.remove('hidden');
+        throwConfetti();
+        playSound('win');
 
         const title = document.getElementById('final-score-text');
         const msg = document.getElementById('encouraging-message');
+        
+        let isNewRecord = false;
 
         if (isMatching) {
-            const accuracy = Math.round((20 / total) * 100);
-            title.innerText = `You matched them all in ${total} attempts!`;
-            msg.innerText = `That is an accuracy of ${accuracy}%. Brilliant memory!`;
+            const accuracy = Math.round((currentDifficulty / total) * 100);
+            title.innerText = `You matched ${currentDifficulty} in ${total} attempts!`;
+            msg.innerText = `Time taken: ${matchSeconds} seconds. Accuracy: ${accuracy}%. Brilliant memory!`;
+            
+            // Local Storage Logic for Matching
+            const savedTime = localStorage.getItem('worldLandmarksFastestMatch');
+            if (!savedTime || matchSeconds < parseInt(savedTime)) {
+                localStorage.setItem('worldLandmarksFastestMatch', matchSeconds);
+                isNewRecord = true;
+            }
+            
         } else {
             const percentage = Math.round((score / total) * 100);
             title.innerText = `You scored ${score}/${total} (${percentage}%)`;
+            
+            // Local Storage Logic for Quiz
+            const savedPercent = localStorage.getItem('worldLandmarksBestQuizPercent');
+            if (!savedPercent || percentage > parseInt(savedPercent)) {
+                localStorage.setItem('worldLandmarksBestQuizPercent', percentage);
+                localStorage.setItem('worldLandmarksBestQuizDisplay', `${score}/${total} (${percentage}%)`);
+                isNewRecord = true;
+            }
+            
             if (percentage === 100) msg.innerText = "Absolutely perfect; you are a world explorer!";
             else if (percentage >= 70) msg.innerText = "Great job; you know your geography!";
             else msg.innerText = "Good try; practice makes perfect!";
         }
+        
+        if (isNewRecord) {
+            msg.innerText += " 🏆 NEW HIGH SCORE!";
+        }
     }
 
-    // Start app
     init();
 </script>
 </body>
